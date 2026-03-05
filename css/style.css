@@ -492,7 +492,7 @@ body {
 
 .chat-input-container {
     display: flex;
-    padding: 1rem;
+    padding: 0rem;
     background: white;
     gap: 0.5rem;
 }
@@ -1948,5 +1948,6 @@ body.lightbox-open {
         bottom: 10px;
         padding: 8px 12px;
     }
+
 
 }
