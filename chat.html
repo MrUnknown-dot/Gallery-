@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,6 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
 </head>
+
 <body>
     <nav class="nav-bar">
         <div class="nav-links">
@@ -23,7 +25,8 @@
         <button class="logout-btn" id="logoutBtn">Logout</button>
     </nav>
 
-    <div class="chat-container" style="max-width: 100%; height: calc(100vh - 80px); margin: 0; border-radius: 0;">
+    <div class="chat-container"
+        style="max-width: 100%; height: calc(100vh - 80px); margin: 0; border-radius: 5;padding-bottom: 20;">
         <div class="chat-header" style="border-radius: 0;">
             <h3>💬 Private Chat</h3>
             <div class="online-status">
@@ -31,40 +34,32 @@
                 <span>Online</span>
             </div>
         </div>
-        
+
         <div class="chat-messages" id="chatMessages" style="height: calc(100vh - 180px);">
             <!-- Messages will appear here -->
         </div>
 
         <div class="typing-indicator" id="typingIndicator" style="display: none;"></div>
-        
+
         <div class="chat-input-container">
             <div class="input-wrapper" style="position: relative; width: 100%;">
                 <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..." maxlength="500">
-                <div class="reaction-picker" id="reactionPicker" style="display: none; position: absolute; bottom: 60px; left: 0; background: white; border: 1px solid var(--soft-pink); border-radius: 10px; padding: 10px; box-shadow: var(--shadow); z-index: 1000;">
-                    <span class="reaction-option" data-emoji="👍" style="cursor: pointer; padding: 5px; font-size: 1.2em;">👍</span>
-                    <span class="reaction-option" data-emoji="❤️" style="cursor: pointer; padding: 5px; font-size: 1.2em;">❤️</span>
-                    <span class="reaction-option" data-emoji="😂" style="cursor: pointer; padding: 5px; font-size: 1.2em;">😂</span>
-                    <span class="reaction-option" data-emoji="😮" style="cursor: pointer; padding: 5px; font-size: 1.2em;">😮</span>
-                    <span class="reaction-option" data-emoji="🎉" style="cursor: pointer; padding: 5px; font-size: 1.2em;">🎉</span>
-                </div>
-                <button class="reaction-btn" id="reactionBtn" style="background: none; border: none; color: var(--text-light); cursor: pointer; padding: 0 10px;">
-                    <i class="fas fa-smile"></i>
-                </button>
+
+
+                <button class="music-toggle" id="musicToggle">🎵</button>
+                <audio id="bgMusic" loop>
+                    <source src="audio/bg_audio.mp3" type="audio/mpeg">
+                </audio>
+
+
                 <button class="send-btn" id="sendMessage">
                     <i class="fas fa-paper-plane"></i>
                 </button>
+
             </div>
         </div>
     </div>
 
-    <!-- Background Music -->
-    <div class="music-player">
-        <button class="music-toggle" id="musicToggle">🎵</button>
-        <audio id="bgMusic" loop>
-            <source src="audio/bg_audio.mp3" type="audio/mpeg">
-        </audio>
-    </div>
 
     <!-- Push Notification Container -->
     <div id="pushNotificationContainer" class="push-notification-container"></div>
@@ -74,25 +69,25 @@
     <script src="js/auth.js"></script>
     <script src="js/chat.js"></script>
     <script>
-        document.getElementById('logoutBtn').addEventListener('click', function() {
+        document.getElementById('logoutBtn').addEventListener('click', function () {
             window.auth.logout();
         });
 
         // Music player with error handling
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const musicToggle = document.getElementById('musicToggle');
             const bgMusic = document.getElementById('bgMusic');
-            
+
             if (musicToggle && bgMusic) {
                 let isPlaying = false;
-                
-                bgMusic.addEventListener('error', function() {
+
+                bgMusic.addEventListener('error', function () {
                     console.log('Background music file not found');
                     musicToggle.style.opacity = '0.5';
                     musicToggle.title = 'Music file not found';
                 });
-                
-                musicToggle.addEventListener('click', function() {
+
+                musicToggle.addEventListener('click', function () {
                     if (isPlaying) {
                         bgMusic.pause();
                         musicToggle.textContent = '🎵';
@@ -109,4 +104,5 @@
         });
     </script>
 </body>
+
 </html>
