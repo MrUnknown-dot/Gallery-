@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Timeline ❤️</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="dashboard.html">Home</a>
+            <a href="moments.html">Moments</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="chat.html">Chat</a>
+            <a href="timeline.html" class="active">Timeline</a>
+        </div>
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+    </nav>
+
+    <div id="hedlinecontainer" style="margin: 2rem auto; text-align: center;">
+        <div id="shine">Our Love Timeline ❤️</div>
+    </div>
+
+    <div style="text-align: center; margin: 1rem; color: var(--text-light);">
+        <p>Every moment of our journey together</p>
+    </div>
+
+    <!-- Add Memory Button -->
+    <div style="text-align: center; margin: 2rem;">
+        <button id="addMemoryBtn" class="upload-btn" style="background: var(--primary-pink); border: none; cursor: pointer;">
+            <i class="fas fa-plus-circle"></i> Add New Memory
+        </button>
+    </div>
+
+    <!-- Timeline Container -->
+    <div class="timeline" id="timeline">
+        <div style="text-align: center; padding: 3rem; color: var(--text-light);">
+            <div class="loading-spinner"></div>
+            <p style="margin-top: 1rem;">Loading memories...</p>
+        </div>
+    </div>
+
+    <!-- Add Memory Modal -->
+    <div id="memoryModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-modal">&times;</span>
+            <h2 style="color: var(--primary-pink); margin-bottom: 1.5rem;">Add New Memory</h2>
+            
+            <form id="addMemoryForm">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-weight: 500;">
+                        <i class="fas fa-calendar-alt"></i> Date
+                    </label>
+                    <input type="date" id="memoryDate" required 
+                           style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-pink); border-radius: 10px; font-family: inherit;">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-weight: 500;">
+                        <i class="fas fa-tag"></i> Title
+                    </label>
+                    <input type="text" id="memoryTitle" placeholder="e.g., Our First Date" required maxlength="100"
+                           style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-pink); border-radius: 10px; font-family: inherit;">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-weight: 500;">
+                        <i class="fas fa-heart"></i> Memory Description
+                    </label>
+                    <textarea id="memoryDescription" placeholder="Write about this special moment..." required rows="5" maxlength="500"
+                              style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-pink); border-radius: 10px; font-family: inherit; resize: vertical;"></textarea>
+                    <div style="text-align: right; font-size: 0.8rem; color: var(--text-light); margin-top: 0.25rem;">
+                        <span id="charCount">0</span>/500
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-dark); font-weight: 500;">
+                        <input type="checkbox" id="isSpecial" style="width: 18px; height: 18px;">
+                        <i class="fas fa-star" style="color: gold;"></i> Mark as Special Moment
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" id="cancelMemoryBtn" class="upload-btn" style="background: #ccc;">
+                        Cancel
+                    </button>
+                    <button type="submit" id="saveMemoryBtn" class="upload-btn" style="background: var(--primary-pink);">
+                        Save Memory ❤️
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Memory Modal -->
+    <div id="editMemoryModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-edit-modal">&times;</span>
+            <h2 style="color: var(--primary-pink); margin-bottom: 1.5rem;">Edit Memory</h2>
+            
+            <form id="editMemoryForm">
+                <input type="hidden" id="editMemoryId">
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-weight: 500;">
+                        <i class="fas fa-calendar-alt"></i> Date
+                    </label>
+                    <input type="date" id="editMemoryDate" required 
+                           style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-pink); border-radius: 10px;">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-weight: 500;">
+                        <i class="fas fa-tag"></i> Title
+                    </label>
+                    <input type="text" id="editMemoryTitle" required maxlength="100"
+                           style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-pink); border-radius: 10px;">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-weight: 500;">
+                        <i class="fas fa-heart"></i> Memory Description
+                    </label>
+                    <textarea id="editMemoryDescription" required rows="5" maxlength="500"
+                              style="width: 100%; padding: 0.75rem; border: 2px solid var(--soft-pink); border-radius: 10px; resize: vertical;"></textarea>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-dark); font-weight: 500;">
+                        <input type="checkbox" id="editIsSpecial" style="width: 18px; height: 18px;">
+                        <i class="fas fa-star" style="color: gold;"></i> Special Moment
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" id="cancelEditBtn" class="upload-btn" style="background: #ccc;">
+                        Cancel
+                    </button>
+                    <button type="submit" id="updateMemoryBtn" class="upload-btn" style="background: var(--primary-pink);">
+                        Update Memory
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #e74c3c; margin-bottom: 1rem;"></i>
+            <h3 style="margin-bottom: 1rem;">Delete Memory?</h3>
+            <p style="margin-bottom: 2rem; color: var(--text-light);">This action cannot be undone.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button id="confirmDeleteBtn" class="upload-btn" style="background: #e74c3c;">Delete</button>
+                <button id="cancelDeleteBtn" class="upload-btn" style="background: #ccc;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Push Notification Container -->
+    <div id="pushNotificationContainer" class="push-notification-container"></div>
+
+    <!-- Background Music -->
+    <div class="music-player">
+        <button class="music-toggle" id="musicToggle">🎵</button>
+        <audio id="bgMusic" loop>
+            <source src="audio/bg_audio.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Your scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-services.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/timeline.js"></script>
+    
+    <script>
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (window.auth && window.auth.logout) {
+                window.auth.logout();
+            }
+        });
+
+        // Music player
+        document.addEventListener('DOMContentLoaded', function () {
+            const musicToggle = document.getElementById('musicToggle');
+            const bgMusic = document.getElementById('bgMusic');
+
+            if (musicToggle && bgMusic) {
+                let isPlaying = false;
+
+                bgMusic.addEventListener('error', function () {
+                    console.log('Background music file not found');
+                });
+
+                musicToggle.addEventListener('click', function () {
+                    if (isPlaying) {
+                        bgMusic.pause();
+                        musicToggle.textContent = '🎵';
+                    } else {
+                        bgMusic.play().catch(e => console.log('Autoplay prevented:', e));
+                        musicToggle.textContent = '⏸️';
+                    }
+                    isPlaying = !isPlaying;
+                });
+            }
+        });
+    </script>
+</body>
+</html>

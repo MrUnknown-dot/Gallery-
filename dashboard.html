@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Gallery ❤️</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="dashboard.html" class="active">Home</a>
+            <a href="moments.html">Moments</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="chat.html">Chat</a>
+            <a href="timeline.html">Timeline</a>
+        </div>
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="welcome-section">
+            <h1>Welcome, <span id="userName"></span>! ❤️</h1>
+            <div class="quote-box">
+                <p>Every moment with you is a treasure worth keeping...</p>
+            </div>
+        </div>
+
+        <h2 style="text-align: center; margin: 3rem 0 2rem;">Recent Memories</h2>
+        <div class="photo-stack" id="previewStack">
+            <div style="text-align: center; grid-column: 1/-1; padding: 2rem;">
+                <div class="loading-spinner"></div>
+                <p>Loading memories...</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="moments.html" class="upload-btn" style="display: inline-block; text-decoration: none;">View All
+                Moments ❤️</a>
+        </div>
+    </div>
+
+    <!-- Background Music -->
+    <div class="music-player">
+        <button class="music-toggle" id="musicToggle">🎵</button>
+        <audio id="bgMusic" loop>
+            <source src="audio/bg_audio.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-services.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Check authentication
+        (function () {
+            const user = window.auth.getCurrentUser();
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            document.getElementById('userName').textContent = user.name;
+        })();
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function () {
+            window.auth.logout();
+        });
+
+        // Load recent photos (from localStorage)
+        function loadRecentPhotos() {
+            const container = document.getElementById('previewStack');
+
+            // Try to load from the gallery manager if available
+            if (window.gallery && window.gallery.images && window.gallery.images.length > 0) {
+                const photos = window.gallery.images;
+                const recent = photos.slice(0, 6); // Get first 6 images
+
+                container.innerHTML = recent.map(photo => `
+            <div class="stack-item" onclick="window.location.href='gallery.html'">
+                <img src="${photo.url}" alt="${photo.caption || 'Memory'}" 
+                     loading="lazy"
+                     onerror="this.src='https://via.placeholder.com/300x250?text=Memory'">
+                <div class="photo-info">
+                    <span>❤️ ${photo.caption || 'Memory'}</span>
+                    <span>${new Date(photo.date).toLocaleDateString()}</span>
+                </div>
+            </div>
+        `).join('');
+            }
+            // Fallback: Try to load from the images folder directly
+            else {
+                // Show loading state
+                container.innerHTML = `
+            <div style="text-align: center; grid-column: 1/-1; padding: 2rem;">
+                <div class="loading-spinner"></div>
+                <p style="margin-top: 1rem;">Loading recent memories...</p>
+            </div>
+        `;
+
+                // Try to load the first 6 images from your gallery folder
+                const recentImages = [];
+                const totalToLoad = 6;
+                let loadedCount = 0;
+
+                // Check for images from your folder (img (1).jpeg through img (6).jpeg)
+                for (let i = 1; i <= totalToLoad; i++) {
+                    const imgUrl = `images/gallery/img (${i}).jpeg`;
+
+                    // Create an image object to check if it exists
+                    const img = new Image();
+                    img.onload = function () {
+                        recentImages.push({
+                            url: imgUrl,
+                            caption: `Memory ${i}`,
+                            date: new Date(Date.now() - (i * 86400000)) // Stagger dates
+                        });
+
+                        loadedCount++;
+
+                        // When all images are checked (or we have at least some)
+                        if (loadedCount === totalToLoad || i === totalToLoad) {
+                            displayRecentPhotos(recentImages);
+                        }
+                    };
+
+                    img.onerror = function () {
+                        loadedCount++;
+                        // If this is the last one, display what we have
+                        if (loadedCount === totalToLoad) {
+                            displayRecentPhotos(recentImages);
+                        }
+                    };
+
+                    img.src = imgUrl;
+                }
+
+                function displayRecentPhotos(photos) {
+                    if (photos.length > 0) {
+                        container.innerHTML = photos.map(photo => `
+                    <div class="stack-item" onclick="window.location.href='gallery.html'">
+                        <img src="${photo.url}" alt="${photo.caption}" 
+                             loading="lazy"
+                             onerror="this.src='https://via.placeholder.com/300x250?text=Memory'">
+                        <div class="photo-info">
+                            <span>❤️ ${photo.caption}</span>
+                            <span>${photo.date.toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                `).join('');
+                    } else {
+                        container.innerHTML = `
+                    <div style="text-align: center; grid-column: 1/-1; padding: 2rem;">
+                        <i class="fas fa-camera fa-3x" style="color: var(--soft-pink); margin-bottom: 1rem;"></i>
+                        <p>No memories yet. Add your photos to the gallery folder!</p>
+                        <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 0.5rem;">
+                            Place images in: <strong>images/gallery/img (1).jpeg</strong> through <strong>img (144).jpeg</strong>
+                        </p>
+                        <a href="gallery.html" style="background: var(--primary-pink); color: white; padding: 1rem 2rem; border-radius: 30px; text-decoration: none; display: inline-block; margin-top: 1rem;">📸 View Gallery</a>
+                    </div>
+                `;
+                    }
+                }
+            }
+        }
+
+        // Also add this helper function to get random images for variety
+        function getRandomRecentImages(count = 6) {
+            if (!window.gallery || !window.gallery.images) return [];
+
+            const images = window.gallery.images;
+            const shuffled = [...images].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        // Alternative: Load random images instead of first 6
+        function loadRandomRecentPhotos() {
+            const container = document.getElementById('previewStack');
+
+            if (window.gallery && window.gallery.images && window.gallery.images.length > 0) {
+                const photos = window.gallery.images;
+
+                // Get 6 random images
+                const shuffled = [...photos].sort(() => 0.5 - Math.random());
+                const recent = shuffled.slice(0, 6);
+
+                container.innerHTML = recent.map(photo => `
+            <div class="stack-item" onclick="window.location.href='gallery.html'">
+                <img src="${photo.url}" alt="${photo.caption || 'Memory'}" 
+                     loading="lazy"
+                     onerror="this.src='https://via.placeholder.com/300x250?text=Memory'">
+                <div class="photo-info">
+                    <span>❤️ ${photo.caption || 'Memory'}</span>
+                    <span>${new Date(photo.date).toLocaleDateString()}</span>
+                </div>
+            </div>
+        `).join('');
+            } else {
+                loadRecentPhotos(); // Fallback to the original function
+            }
+        }
+
+        // Load photos on page load
+        document.addEventListener('DOMContentLoaded', loadRecentPhotos);
+
+        // Music player
+        document.addEventListener('DOMContentLoaded', function () {
+            const musicToggle = document.getElementById('musicToggle');
+            const bgMusic = document.getElementById('bgMusic');
+
+            if (musicToggle && bgMusic) {
+                let isPlaying = false;
+
+                bgMusic.addEventListener('error', function () {
+                    console.log('Background music file not found');
+                });
+
+                musicToggle.addEventListener('click', function () {
+                    if (isPlaying) {
+                        bgMusic.pause();
+                        musicToggle.textContent = '🎵';
+                    } else {
+                        bgMusic.play().catch(e => console.log('Autoplay prevented:', e));
+                        musicToggle.textContent = '⏸️';
+                    }
+                    isPlaying = !isPlaying;
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

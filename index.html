@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Gallery ❤️</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Firebase SDKs - Load these FIRST -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h1>Our Secret Gallery</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" value="Loki" required placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" value="123" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="login-btn" id="loginBtn">Enter Our World ❤️</button>
+                <div id="errorMessage" class="error-message"></div>
+            </form>
+            <div style="text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--soft-pink);">
+                <p style="color: var(--text-light); font-size: 0.9rem;">Use these credentials:</p>
+                <p style="margin: 0.25rem 0;"><strong>Loki</strong> | password: <strong>123</strong></p>
+                <p style="margin: 0.25rem 0;"><strong>Crush</strong> | password: <strong>456</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Music -->
+    <div class="music-player">
+        <button class="music-toggle" id="musicToggle">🎵</button>
+        <audio id="bgMusic" loop>
+            <source src="audio/bg_audio.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- Firebase SDKs - Load these FIRST -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Your scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-services.js"></script>
+    <script src="js/auth.js"></script>
+    
+    <script>
+        // Check if already logged in
+        (function () {
+            const user = window.auth.getCurrentUser();
+            if (user) {
+                window.location.href = 'dashboard.html';
+            }
+        })();
+
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorDiv = document.getElementById('errorMessage');
+            const loginBtn = document.getElementById('loginBtn');
+
+            errorDiv.textContent = '';
+
+            if (!name || !password) {
+                errorDiv.textContent = 'Please enter both name and password';
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+
+            const result = window.auth.login(name, password);
+
+            if (result.success) {
+                window.location.href = 'dashboard.html';
+            } else {
+                errorDiv.textContent = result.error || 'Invalid credentials';
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Enter Our World ❤️';
+            }
+        });
+
+        // Music player
+        document.addEventListener('DOMContentLoaded', function () {
+            const musicToggle = document.getElementById('musicToggle');
+            const bgMusic = document.getElementById('bgMusic');
+
+            if (musicToggle && bgMusic) {
+                let isPlaying = false;
+
+                // Handle missing audio file gracefully
+                bgMusic.addEventListener('error', function () {
+                    console.log('Background music file not found - continuing without music');
+                    musicToggle.style.opacity = '0.5';
+                    musicToggle.title = 'Music file not found';
+                });
+
+                musicToggle.addEventListener('click', function () {
+                    if (isPlaying) {
+                        bgMusic.pause();
+                        musicToggle.textContent = '🎵';
+                    } else {
+                        bgMusic.play().catch(e => {
+                            console.log('Could not play music:', e);
+                            // Don't show error to user, just continue
+                        });
+                        musicToggle.textContent = '⏸️';
+                    }
+                    isPlaying = !isPlaying;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
